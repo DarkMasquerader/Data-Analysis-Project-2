@@ -78,18 +78,31 @@ def linkedInScraper():
     handleLogin(driver)
 
     # Search for Job
-    searchBarID = "jobs-search-box-keyword-id-ember27" #TODO: Find the number dynamicall by searching for 'jobs-search-box-keyword-id-ember' and extracting 
-    pageHTML, pageURL = MyWeb.interactWithTextBoxByID(searchBarID, "Data Analyst", driver)
+    MyWeb.time.sleep(3)
+    find_string = 'for="jobs-search-box-keyword-id-ember'
+    searchBarIndex = driver.page_source.find(find_string)
+    searchBarID = driver.page_source[searchBarIndex: searchBarIndex + len(find_string) + 2] 
+    searchBarID = searchBarID.split('"')[1]
+    pageHTML, pageURL = MyWeb.interactWithTextBoxByID(searchBarID, "Data Analyst", driver, True)
 
     # Isolate list of jobs object
-    htmlObject = 'div'
-    attr = {"class":"scaffold-layout__list "}
-    job_list = MyWeb.isolateInteractableHTML(
-        MyWeb.getHTML(pageURL), 
-        htmlObject, 
-        False, 
-        attr= job_list
-    )
+    jobList = MyWeb.BeautifulSoup(driver.page_source, 'html').find_all('div')
+    for job in jobList:
+
+        # Check if actual job
+        if job.has_attr('data-job-id'):
+            print(job)
+    
+
+
+    # htmlObject = 'ul'
+    # attr = {"class":"scaffold-layout__list-container"}
+    # job_list = MyWeb.isolateInteractableHTML(
+    #     MyWeb.getHTML(pageURL), 
+    #     htmlObject, 
+    #     False, 
+    #     attr= attr
+    # )
 
     # Scroll job object to load all jobs
     ul_element = driver.find_element_by_css_selector("ul.scaffold-layout__list-container")

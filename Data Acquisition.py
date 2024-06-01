@@ -50,12 +50,15 @@ def handleLogin(driver):
     email = 'zbvd398@live.rhul.ac.uk'
     pwd = 'iushfuish398fs[fsdfs]'
 
-    input_element = driver.find_element(MyWeb.By.ID, 'username')
-    input_element.send_keys(email)
+    MyWeb.interactWithTextBoxByID('username', 
+                                  email, 
+                                  driver, 
+                                  False)
 
-    input_element = driver.find_element(MyWeb.By.ID, 'password')
-    input_element.send_keys(pwd) 
-    input_element.send_keys(MyWeb.Keys.ENTER)
+    MyWeb.interactWithTextBoxByID('password', 
+                                  pwd, 
+                                  driver, 
+                                  True)
 
     # Go to jobs page post login
     job_URL = 'https://www.linkedin.com/jobs'
@@ -75,7 +78,7 @@ def linkedInScraper():
     handleLogin(driver)
 
     # Search for Job
-    searchBarID = "jobs-search-box-keyword-id-ember27"
+    searchBarID = "jobs-search-box-keyword-id-ember27" #TODO: Find the number dynamicall by searching for 'jobs-search-box-keyword-id-ember' and extracting 
     pageHTML, pageURL = MyWeb.interactWithTextBoxByID(searchBarID, "Data Analyst", driver)
 
     # Isolate list of jobs object

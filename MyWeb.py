@@ -121,7 +121,7 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: b
     '''
 
     # Safely confirm presence of textbox before attempting interaction
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, id))
     )
 
@@ -131,9 +131,6 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: b
     
     if pressEnter:
         input_element.send_keys(Keys.ENTER)
-
-    # Wait for 3 seconds to load
-    time.sleep(3)
 
     pageHTML = driver.page_source
     pageURL = driver.current_url

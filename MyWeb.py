@@ -87,15 +87,11 @@ def threadCaller(threadCallee: Callable):
     end_time = time.time()
     print(f'Steam Runtime: {end_time-start_time}')
 
-def interactWithTextBoxByID(id: str, text: str, driver: webdriver):
+def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: bool):
     '''
         Description
         ------------
         This function is responsible for interacting with a specified textbox that has been identified using its 'ID'.
-
-        All input are followed with an 'enter' key press.
-
-        This function also updates the driver URL at the end.
     
         Parameters
         ----------
@@ -107,6 +103,9 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver):
 
         driver: webdriver
             This variable is the WebDriver object that being used by the calling thread.
+        
+        pressEnter: bool
+            This variable controls whether or not an enter input is pressed
     
         Returns
         -------
@@ -128,7 +127,10 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver):
 
     # Identify and interact with textbox 
     input_element = driver.find_element(By.ID, id)       
-    input_element.send_keys(text + Keys.ENTER)
+    input_element.send_keys(text)
+    
+    if pressEnter:
+        input_element.send_keys(Keys.ENTER)
 
     # Wait for 3 seconds to load
     time.sleep(3)
@@ -137,7 +139,8 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver):
     pageURL = driver.current_url
 
     # Update driver
-    driver.get(pageURL)
+    if pressEnter:
+        driver.get(pageURL)
 
     return pageHTML, pageURL
 

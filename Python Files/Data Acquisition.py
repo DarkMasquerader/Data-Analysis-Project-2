@@ -4,6 +4,7 @@ from Job import Job
 list_of_job_objects = []
 def main():
     linkedInScraper()
+    # extractData()
 
 threadCounter = 0
 def getNextThing():
@@ -99,35 +100,39 @@ def acquireJobListings(driver):
     return list_of_job_pages
 
 def extractData():
-    pass
-    # global list_of_job_objects
-    # for job in list_of_job_pages:
-        
-    #     # Get HTML
-    #     driver.get(job)
-    #     pageText = MyWeb.BeautifulSoup(driver.page_source, 'html')
+    
+    dir = './Python Files/Output Files'
+    for file_name in os.listdir(dir):
+        file_path = os.path.join(dir, file_name)
 
-    #     # Acquire location, post date, no.applicants
-    #     data_1 = pageText.find('div', 
-    #                            {'class' : 'job-details-jobs-unified-top-card__primary-description-container'})
-    #     data_1_text = data_1.get_text()
-    #     print(data_1_text)
+        if os.path.isfile(file_path):
+            with open(file_path, 'r') as file:
+                
+                # Get HTML
+                pageText = file.read()
+                pageText = MyWeb.BeautifulSoup(pageText, 'html')
 
-    #     # Acquire salary, remote/hybrid/in-person, contract type, level
-    #     data_2 = pageText.find('li', 
-    #                            {'class' : 'job-details-jobs-unified-top-card__job-insight job-details-jobs-unified-top-card__job-insight--highlight'})
-    #     data_2_text = data_2.get_text().strip()
-    #     _ = [line for line in data_2_text.split('\n') if line.strip()]
-    #     data_2_text = '\n'.join(_)
-    #     print(data_2_text)
+                # Acquire location, post date, no.applicants
+                data_1 = pageText.find('div', 
+                                    {'class' : 'job-details-jobs-unified-top-card__primary-description-container'})
+                data_1_text = data_1.get_text()
+                print(data_1_text)
 
-    #     # Job description
-    #     data_3 = pageText.find('article', class_='jobs-description__container jobs-description__container--condensed')
-    #     data_3_text = data_3.get_text(separator='\n', strip=True) # About This Job
-    #     print(data_3_text)
+                # Acquire salary, remote/hybrid/in-person, contract type, level
+                data_2 = pageText.find('li', 
+                                    {'class' : 'job-details-jobs-unified-top-card__job-insight job-details-jobs-unified-top-card__job-insight--highlight'})
+                data_2_text = data_2.get_text().strip()
+                _ = [line for line in data_2_text.split('\n') if line.strip()]
+                data_2_text = '\n'.join(_)
+                print(data_2_text)
 
-    #     # Create object
-    #     list_of_job_objects.append(Job(data_1_text, data_2_text, data_3_text))
+                # Job description
+                data_3 = pageText.find('article', class_='jobs-description__container jobs-description__container--condensed')
+                data_3_text = data_3.get_text(separator='\n', strip=True) # About This Job
+                print(data_3_text)
+
+                # Create object
+                list_of_job_objects.append(Job(data_1_text, data_2_text, data_3_text)) #
 
 def linkedInScraper():
 
@@ -149,18 +154,21 @@ def linkedInScraper():
     job_counter = 1
     for page in list_of_job_pages:
         driver.get(page)
-        
+
+        show_more_button_selector = 'button[aria-label="Click to see more description"]'
+        MyWeb.WebDriverWait(driver, 15).until(
+            MyWeb.EC.presence_of_element_located((MyWeb.By.CSS_SELECTOR, show_more_button_selector))
+        )
+        button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
+        MyWeb.time.sleep(1)
+        button.click()
+        MyWeb.time.sleep(1)
+
         path = f'./Python Files/Output Files/Job{job_counter}.html' 
         with open(path, 'w') as f:
             f.write(driver.page_source)
             job_counter += 1
         
-        MyWeb.time.sleep(3)
-
-    # Extract data
-    # extractData()
-
-    print('Done')
 
 # Main Loop
 if __name__ == '__main__':

@@ -132,25 +132,24 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: b
     if pressEnter:
         input_element.send_keys(Keys.ENTER)
 
+    # Wait for 3 seconds to load
+        time.sleep(3)
+        
     pageHTML = driver.page_source
     pageURL = driver.current_url
 
     # Update driver
-    if pressEnter:
-        driver.get(pageURL)
+    # if pressEnter:
+    #     driver.get(pageURL)
 
     return pageHTML, pageURL
 
-def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver):
+def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver, pressEnter: bool):
     '''
         Description
         ------------
         This function is responsible for interacting with a specified textbox that has been identified using its 'class'.
 
-        All input are followed with an 'enter' key press.
-
-        This function also updates the driver URL at the end.
-    
         Parameters
         ----------
         html_class: str
@@ -161,6 +160,9 @@ def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver):
 
         driver: webdriver
             This variable is the WebDriver object that being used by the calling thread.
+
+        pressEnter: bool
+            This variable controls whether or not an enter input is pressed
     
         Returns
         -------
@@ -182,7 +184,10 @@ def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver):
 
     # Identify and interact with textbox 
     input_element = driver.find_element(By.CLASS_NAME, html_class)       
-    input_element.send_keys(text + Keys.ENTER)
+    input_element.send_keys(text)
+    
+    if pressEnter:
+        input_element.send_keys(Keys.ENTER)
 
     # Wait for 3 seconds to load
     time.sleep(3)
@@ -191,9 +196,63 @@ def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver):
     pageURL = driver.current_url
 
     # Update driver
-    driver.get(pageURL)
+    # if pressEnter:
+    #     driver.get(pageURL)
 
     return pageHTML, pageURL
+
+def interactWithTextBoxBySelector(selector: str, text: str, driver: webdriver, pressEnter: bool):
+    '''
+        Description
+        ------------
+        This function is responsible for interacting with a specified textbox that has been identified using its selector.
+
+        Parameters
+        ----------
+        selector: str
+            The selector that is used to identify the textbox.
+        
+        text: str
+            This variable contains the text that is entered into the textbox.
+
+        driver: webdriver
+            This variable is the WebDriver object that being used by the calling thread.
+
+        pressEnter: bool
+            This variable controls whether or not an enter input is pressed
+    
+        Returns
+        -------
+        pageHTML: str
+            HTML of the page following the interaction with the textbox.
+
+        pageURL: str
+            The URL of the page following the interaction with the textbox.
+        
+        Raises
+        ------
+        
+    '''
+
+    # Safely confirm presence of textbox before attempting interaction
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+    )
+
+    # Identify and interact with textbox 
+    input_element = driver.find_element(By.CSS_SELECTOR, selector)       
+    input_element.send_keys(text)
+    
+    if pressEnter:
+        input_element.send_keys(Keys.ENTER)
+
+    # Wait for 3 seconds to load
+    time.sleep(3)
+
+    pageHTML = driver.page_source
+    pageURL = driver.current_url
+
+    return pageHTML, pageURL 
 
 def isolateHTMLElementByClass(driver: webdriver, element_name: str):
     '''

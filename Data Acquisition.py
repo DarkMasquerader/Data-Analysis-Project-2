@@ -1,4 +1,4 @@
-import MyWeb 
+import MyWeb, os, re
 
 '''
 Job list column: div class="scaffold-layout__list " tableindex="-1"
@@ -47,8 +47,9 @@ def handleLogin(driver):
     driver.get(login_URL)
 
     # Enter Login Details
-    email = 'zbvd398@live.rhul.ac.uk'
-    pwd = 'iushfuish398fs[fsdfs]'
+    with open(f'/Users/{os.getlogin()}/Desktop/details.txt', 'r') as file:
+        email = file.readline().strip()
+        pwd = file.readline().strip()
 
     MyWeb.interactWithTextBoxByID('username', 
                                   email, 
@@ -78,52 +79,31 @@ def linkedInScraper():
     handleLogin(driver)
 
     # Search for Job
-    MyWeb.time.sleep(3)
-    find_string = 'for="jobs-search-box-keyword-id-ember'
-    searchBarIndex = driver.page_source.find(find_string)
-    searchBarID = driver.page_source[searchBarIndex: searchBarIndex + len(find_string) + 2] 
-    searchBarID = searchBarID.split('"')[1]
-    pageHTML, pageURL = MyWeb.interactWithTextBoxByID(searchBarID, "Data Analyst", driver, True)
-
-    # Isolate list of jobs object
-    jobList = MyWeb.BeautifulSoup(driver.page_source, 'html').find_all('div')
-    for job in jobList:
-
-        # Check if actual job
-        if job.has_attr('data-job-id'):
-            print(job)
+    pageHTML, pageURL = MyWeb.interactWithTextBoxBySelector(
+        selector= 'input[aria-label="Search by title, skill, or company"]', 
+        text= 'Data Analyst', 
+        driver= driver, 
+        pressEnter= True
+    )
     
+    # Curate list of job URL's (Single Page)
+    # &start=25 - Append to URL and up by 25 for each page
+    pageText = MyWeb.getHTML(pageURL)
+    hyperlinks = pageText.find_all('a')
 
+    regex_pattern = '^\/jobs\/view\/'
 
-    # htmlObject = 'ul'
-    # attr = {"class":"scaffold-layout__list-container"}
-    # job_list = MyWeb.isolateInteractableHTML(
-    #     MyWeb.getHTML(pageURL), 
-    #     htmlObject, 
-    #     False, 
-    #     attr= attr
-    # )
+    list_of_job_pages = []
+    for link in hyperlinks:
+        _ = link.get('href')
 
-    # Scroll job object to load all jobs
-    ul_element = driver.find_element_by_css_selector("ul.scaffold-layout__list-container")
+        # Base Case - No href found
+        if _ is None:
+            continue
 
-    initial_height = driver.execute_script("return arguments[0].scrollHeight", ul_element)
-
-    # Handle dynamic HTML
-    while True:
-        # Scroll the <ul> element
-        driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", ul_element)
-        
-        # Wait for a short duration to allow the content to load
-        MyWeb.time.sleep(2)
-        
-        # Check if the height of the <ul> element has increased
-        new_height = driver.execute_script("return arguments[0].scrollHeight", ul_element)
-        if new_height > initial_height:
-            initial_height = new_height
-        else:
-            break
-
+        if re.search(regex_pattern, _) is not None:
+            list_of_job_pages.append(f'linkedin.com{_}')
+    
 
 # Main Loop
 if __name__ == '__main__':

@@ -2,9 +2,28 @@ import MyWeb, os, re
 from Job import Job
 
 list_of_job_objects = []
+
+collectNewData = False
+
 def main():
-    linkedInScraper()
-    # extractData()
+    
+    ''' 
+    This function is responsible for scraping job-related information from LinkedIn.
+    '''
+    if collectNewData:
+        linkedInScraper()
+    
+    '''
+    This function is responsible for extracting and structuring the information from the job postings and storing them in objects.
+    '''
+    extractData()
+
+    myset = set()
+    for job in list_of_job_objects:
+        myset.add(job.salary)
+
+
+    print('DONE')
 
 threadCounter = 0
 def getNextThing():
@@ -115,24 +134,79 @@ def extractData():
                 # Acquire location, post date, no.applicants
                 data_1 = pageText.find('div', 
                                     {'class' : 'job-details-jobs-unified-top-card__primary-description-container'})
-                data_1_text = data_1.get_text()
-                print(data_1_text)
+                data_1_text = data_1.get_text().strip()
+                data_1_split = [_.strip() for _ in data_1_text.split('·')]
+                
+                # Base Case - No. applicants unspecified
+                if len(data_1_split) == 2:
+                    data_1_split.append('N/A')
 
                 # Acquire salary, remote/hybrid/in-person, contract type, level
-                data_2 = pageText.find('li', 
-                                    {'class' : 'job-details-jobs-unified-top-card__job-insight job-details-jobs-unified-top-card__job-insight--highlight'})
+                LIST_ELEMENTS = pageText.findAll('li', 
+                                    {'class' : 'job-details-jobs-unified-top-card__job-insight'})
+ 
+                data_2 = LIST_ELEMENTS[0]
                 data_2_text = data_2.get_text().strip()
                 _ = [line for line in data_2_text.split('\n') if line.strip()]
                 data_2_text = '\n'.join(_)
-                print(data_2_text)
+                data_2_text = data_2_text.lower()
 
-                # Job description
+                # Location
+                isOnSite = 'on-site' in data_2_text
+                isRemote = 'remote' in data_2_text
+                isHybrid = 'hybrid' in data_2_text
+                isLocationUnspecified = all(location == False for location in [isOnSite, isRemote, isHybrid])
+                
+                # Contract Type
+                isContract = 'contract' in data_2_text
+                isFullTime = 'full-time' in data_2_text
+                isContractTypeUnspecified = all(contract == False for contract in [isContract, isFullTime])
+
+                # Job Level
+                isEntryLevel = 'entry level' in data_2_text
+                isMidSeniorLevel = 'mid-senior level' in data_2_text
+                isDirector = 'director' in data_2_text
+                isAssociate = 'associate' in data_2_text
+                isInternship = 'internship' in data_2_text
+                isJobLevelUnspecified = all(jobLevel == False for jobLevel in [isEntryLevel, isMidSeniorLevel, isDirector, isAssociate, isInternship])
+ 
+                # Salary
+                data_2_split = [_.strip() for _ in data_2.get_text().split('\n')]
+                salary = 'None'
+                for _ in data_2_split:
+                    if '$' in _ or '£' in _ or '€' in _:
+                        salary = _
+                        break
+
+                # Job description & Skills
                 data_3 = pageText.find('article', class_='jobs-description__container jobs-description__container--condensed')
-                data_3_text = data_3.get_text(separator='\n', strip=True) # About This Job
-                print(data_3_text)
+                data_3_text = data_3.get_text(separator='\n', strip=True).lower() # About This Job
+
+                skillSQL = 'sql' in data_3_text
+                skillsExcel = 'excel'in data_3_text
+                skillsTableau = 'tableau'in data_3_text
+                skillsPowerBi = 'power bi'in data_3_text
+                skillsPython = 'python'in data_3_text
+                skillsR = ' r 'in data_3_text
+
+                # No. Employees
+                data_4 = LIST_ELEMENTS[1]
+                data_4_text = data_4.get_text()
+                data_4_split = data_4_text.split('·')
+                employeeCount = 'None'
+
+                for _ in data_4_split:
+                    if 'employees' in _:
+                        employeeCount = _.split('employees')[0].strip()
 
                 # Create object
-                list_of_job_objects.append(Job(data_1_text, data_2_text, data_3_text)) #
+                list_of_job_objects.append(Job(*data_1_split, 
+                    isOnSite, isRemote, isHybrid, isLocationUnspecified,
+                      isContract, isFullTime, isContractTypeUnspecified,
+                        isEntryLevel, isMidSeniorLevel, isDirector, isAssociate, isInternship, isJobLevelUnspecified,
+                         skillSQL, skillsExcel, skillsTableau, skillsPowerBi, skillsPython, skillsR,
+                          salary,
+                           employeeCount))
 
 def linkedInScraper():
 

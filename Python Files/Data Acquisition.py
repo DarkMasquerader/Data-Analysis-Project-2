@@ -1,9 +1,13 @@
 import MyWeb, os, re
 from Job import Job
+import pandas as pd
 
 list_of_job_objects = []
 
 collectNewData = False
+
+specificCountry = True
+country = 'United Kingdom'
 
 def main():
     
@@ -18,12 +22,11 @@ def main():
     '''
     extractData()
 
-    myset = set()
-    for job in list_of_job_objects:
-        myset.add(job.salary)
+    '''
+    This function is responsible for exporting the data to a .csv file where it can be interacted with in Tableau.
+    '''
+    exportData()
 
-
-    print('DONE')
 
 threadCounter = 0
 def getNextThing():
@@ -85,8 +88,17 @@ def acquireJobListings(driver):
         selector= 'input[aria-label="Search by title, skill, or company"]', 
         text= 'Data Analyst', 
         driver= driver, 
-        pressEnter= True
+        pressEnter= False if specificCountry else True
     )
+
+    if specificCountry:
+        pageHTML, pageURL = MyWeb.interactWithTextBoxBySelector(
+            selector= 'input[aria-label="City, state, or zip code"]', 
+            text= country,
+            driver= driver, 
+            pressEnter= True
+        )
+
     
     # Curate list of job page URL's 
     list_of_page_urls = []
@@ -120,9 +132,11 @@ def acquireJobListings(driver):
 
 def extractData():
     
-    dir = './Python Files/Output Files'
+    dir = './Python Files/Output Files/Job Pages'
+    jobID = 0
     for file_name in os.listdir(dir):
         file_path = os.path.join(dir, file_name)
+        jobID += 1
 
         if os.path.isfile(file_path):
             with open(file_path, 'r') as file:
@@ -199,6 +213,12 @@ def extractData():
                     if 'employees' in _:
                         employeeCount = _.split('employees')[0].strip()
 
+                # Company Name
+                data_5 = pageText.findAll('a', 
+                                       {'class' : 'app-aware-link',
+                                        'target' : '_self'})
+                data_5_text = data_5[5].get_text().strip()
+
                 # Create object
                 list_of_job_objects.append(Job(*data_1_split, 
                     isOnSite, isRemote, isHybrid, isLocationUnspecified,
@@ -206,7 +226,9 @@ def extractData():
                         isEntryLevel, isMidSeniorLevel, isDirector, isAssociate, isInternship, isJobLevelUnspecified,
                          skillSQL, skillsExcel, skillsTableau, skillsPowerBi, skillsPython, skillsR,
                           salary,
-                           employeeCount))
+                           employeeCount, 
+                            data_5_text,
+                             jobID))
 
 def linkedInScraper():
 
@@ -242,7 +264,39 @@ def linkedInScraper():
         with open(path, 'w') as f:
             f.write(driver.page_source)
             job_counter += 1
-        
+    
+def exportData():
+
+    # General 
+    general_df = pd.DataFrame(columns= ['Job ID', 'Company Name', 'Location', 'Post Date', 'No. Applicants', 'No. Employees', 'Salary'])
+
+    # Work Type
+    workType_df = pd.DataFrame(columns= ['Job ID', 'On-Site', 'Remote', 'Hybrid', 'Unspecified'])
+
+    # Contract Type
+    contractType_df = pd.DataFrame(columns= ['Job ID', 'Contracted', 'Full Time', 'Unspecified'])
+    
+    # Job Level
+    jobLevel_df= pd.DataFrame(columns= ['Job ID', 'Internship', 'Entry Level', 'Mid-Senior Level', 'Associate Level', 'Director Level', 'Unspecified'])
+
+    # Skills
+    skills_df= pd.DataFrame(columns= ['Job ID', 'SQL', 'Excel', 'Tableau', 'Power Bi', 'Python', 'R'])
+
+    # Build DataFrame
+    for job in list_of_job_objects:
+        general_df.loc[len(general_df)] = job.getGeneral()
+        workType_df.loc[len(workType_df)] = job.getWorkType()
+        contractType_df.loc[len(contractType_df)] = job.getContractType()
+        jobLevel_df.loc[len(jobLevel_df)] = job.getJobLevel()
+        skills_df.loc[len(skills_df)] = job.getSkills()
+
+    # Export DataFrames
+    general_df.to_csv('./Python Files/Output Files/csv/General.csv', index= False)
+    workType_df.to_csv('./Python Files/Output Files/csv/Work Type.csv', index= False)
+    contractType_df.to_csv('./Python Files/Output Files/csv/Contract Type.csv', index= False)
+    jobLevel_df.to_csv('./Python Files/Output Files/csv/Job Level.csv', index= False)
+    skills_df.to_csv('./Python Files/Output Files/csv/Skills.csv', index= False)
+
 
 # Main Loop
 if __name__ == '__main__':

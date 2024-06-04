@@ -12,3 +12,5 @@ This only occurred when accessed through certian URL's, which I have avoided
 - Dynamic loading 
 'about this job', appears to load dynamically 
 To solve, had to enforce sleeps and button interactions to get the data
+
+- Different URL's per region 

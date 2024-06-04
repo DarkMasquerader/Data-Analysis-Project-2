@@ -4,7 +4,7 @@ import pandas as pd
 
 list_of_job_objects = []
 
-collectNewData = False
+collectNewData = True
 
 specificCountry = True
 country = 'United Kingdom'
@@ -84,21 +84,20 @@ def handleLogin(driver):
 def acquireJobListings(driver):
     
     # Search for Job
-    pageHTML, pageURL = MyWeb.interactWithTextBoxBySelector(
-        selector= 'input[aria-label="Search by title, skill, or company"]', 
-        text= 'Data Analyst', 
-        driver= driver, 
-        pressEnter= False if specificCountry else True
-    )
-
     if specificCountry:
-        pageHTML, pageURL = MyWeb.interactWithTextBoxBySelector(
+        MyWeb.interactWithTextBoxBySelector(
             selector= 'input[aria-label="City, state, or zip code"]', 
             text= country,
             driver= driver, 
             pressEnter= True
         )
 
+    pageHTML, pageURL = MyWeb.interactWithTextBoxBySelector(
+        selector= 'input[aria-label="Search by title, skill, or company"]', 
+        text= 'Data Analyst', 
+        driver= driver, 
+        pressEnter= True
+    )
     
     # Curate list of job page URL's 
     list_of_page_urls = []
@@ -110,7 +109,7 @@ def acquireJobListings(driver):
         list_of_page_urls.append(f'{pageURL}{app_str}{app_num * x}')
 
     # Extract all job URL's
-    regex_pattern = '^https:\/\/www.linkedin.com\/jobs\/view\/'
+    regex_pattern = '^(https:\/\/(www|uk).linkedin.com)\/jobs\/view\/'
 
     list_of_job_pages = []
     for page_url in list_of_page_urls:
@@ -125,7 +124,7 @@ def acquireJobListings(driver):
             if _ is None:
                 continue
 
-            if re.search(regex_pattern, _) is not None:
+            if re.search(regex_pattern, _) is not None: #todo
                 list_of_job_pages.append(_)
 
     return list_of_job_pages
@@ -247,7 +246,9 @@ def linkedInScraper():
     list_of_job_pages = acquireJobListings(driver)
 
     # Save HTML 
-    job_counter = 1
+    basePath = './Python Files/Output Files/Job Pages'
+    file_count = len([name for name in os.listdir(basePath)])
+    job_counter = file_count + 1
     for page in list_of_job_pages:
         driver.get(page)
 
@@ -260,7 +261,7 @@ def linkedInScraper():
         button.click()
         MyWeb.time.sleep(1)
 
-        path = f'./Python Files/Output Files/Job{job_counter}.html' 
+        path = f'{basePath}/Job{job_counter}.html' 
         with open(path, 'w') as f:
             f.write(driver.page_source)
             job_counter += 1

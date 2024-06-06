@@ -7,6 +7,20 @@ class Job:
     Each of the functions in this class have been created to facilitate the creation of DataFrame objects, which allows information to be exported and analysed in Tableau.
     '''
 
+    state_abbreviations = {
+        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+        'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+        'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+        'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 'MA': 'Massachusetts',
+        'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana',
+        'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico',
+        'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+        'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+        'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+        'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+        'DC': 'District of Columbia'
+    }
+
     def __init__(self, location, post_date, no_applicants, on_site, remote, 
                  hybrid, location_unspecified, contract, full_time, contract_unspecified, 
                  entry_level, mid_senior_level, director_level, associate_level, internship_level, job_level_unspecified, 
@@ -16,25 +30,38 @@ class Job:
         # General
         self.jobId = jobId
         self.company_name = company_name
-        self.location = location
+
+        if ',' not in location:
+            self.location = location
+        else:
+            _ = location.split(',')[1].strip()
+            if len(_) == 2:
+                self.location = Job.state_abbreviations[_]
+            else:
+                self.location = _
+
         self.post_date = post_date
         self.no_applicants = no_applicants 
         self.employee_count = employee_count
 
 
-        self.salary = salary #todo
-        if 'up to' in salary.lower(): # Remove text
-            self.salary = salary.lower().split('up to ')[1]
-        elif ' - ' in salary: #Take lower end of salary range
-            self.salary = salary.split(' - ')[0]
-            
-        # Replace 'k' with ',000'
-        if 'k' in self.salary.lower():
-            self.salary = self.salary.lower().replace('k', ',000')
+        self.salary = salary 
 
-        # Remove 'per hour' or 'per year'
-        if '/' in self.salary:
-            self.salary = self.salary.split('/')[0]
+        if salary is not None:
+            if 'up to' in salary.lower(): # Remove text
+                self.salary = salary.lower().split('up to ')[1]
+            elif ' - ' in salary: #Take lower end of salary range
+                self.salary = salary.split(' - ')[0]
+                
+            # Replace 'k' with ',000'
+            if 'k' in self.salary.lower():
+                self.salary = self.salary.lower().replace('k', '000.00')
+
+            # Remove 'per hour' or 'per year'
+            if '/' in self.salary:
+                self.salary = self.salary.split('/')[0]
+            
+            self.salary = float(self.salary[1:])
 
         # Working Type
         self.on_site = on_site 

@@ -4,7 +4,7 @@ import pandas as pd
 
 list_of_job_objects = []
 
-collectNewData = True
+collectNewData = False
 
 specificCountry = True
 country = 'United Kingdom'
@@ -26,6 +26,8 @@ def main():
     This function is responsible for exporting the data to a .csv file where it can be interacted with in Tableau.
     '''
     exportData()
+    
+    print('******* DONE *******')
 
 
 threadCounter = 0
@@ -134,6 +136,11 @@ def extractData():
     dir = './Python Files/Output Files/Job Pages'
     jobID = 0
     for file_name in os.listdir(dir):
+
+        # Base Case - Not .html file
+        if '.html' not in file_name:
+            continue
+
         file_path = os.path.join(dir, file_name)
         jobID += 1
 
@@ -185,7 +192,7 @@ def extractData():
  
                 # Salary
                 data_2_split = [_.strip() for _ in data_2.get_text().split('\n')]
-                salary = 'None'
+                salary = None
                 for _ in data_2_split:
                     if '$' in _ or '£' in _ or '€' in _:
                         salary = _

@@ -1,78 +1,119 @@
+# Imports
 import MyWeb, os, re, datetime
 from Job import Job
 import pandas as pd
+from selenium.common.exceptions import TimeoutException
 
-list_of_job_objects = []
+# Global Variables
+list_of_job_objects = [] 
+url_set = set()
 
-collectNewData = True
-no_pages = 20
+collectNewData = False #Set to false if extracting data from local .html files
+no_pages = 20 # When collecting new data, this var determines the number of pages to search through
 
-specificCountry = True
+specificCountry = True #Set to true to specify the country of the job search
 country = 'United States'
 
+basePath = './Python Files/Output Files/Job Pages' #Output path for .html files
 
-collectionDate = datetime.datetime(2024, 6, 11)
+collectionDate = datetime.datetime.today()
 
 def main():
     
     ''' 
     This function is responsible for scraping job-related information from LinkedIn.
+    The .html file for each job listing is saved locally with its URL prepended within the document.
     '''
     if collectNewData:
+        getPreviousJobURLS()
         linkedInScraper()
     
     '''
-    This function is responsible for extracting and structuring the information from the job postings and storing them in objects.
+    This function is responsible for extracting, transforming, and structuring the information from the job postings and storing them in objects.
     '''
     extractData()
 
     '''
-    This function is responsible for exporting the data to a .csv file where it can be interacted with in Tableau.
+    This function is responsible for exporting the job data to a/several .csv file(s) where it can be interacted with in Tableau.
     '''
     exportData()
     
     print('******* DONE *******')
 
+# Data Scraping functions
+def getPreviousJobURLS():
 
-threadCounter = 0
-def getNextThing():
-    with MyWeb.mutex:
-        global threadCounter
-        threadCounter += 1
-        # return next(<ITERABLE>)
+    for filename in os.listdir(basePath):
+        if filename.endswith(".html"):
+            filepath = os.path.join(basePath, filename)
+            with open(filepath, 'r', encoding='utf-8') as file:
+                first_line = file.readline().strip()
+                url_set.add(first_line.split('<!-- ')[1].split(' -->')[0].split('?position')[0])
 
-def threadCallee(num):
-    print(f'Thread #{num} started')
-    
+def linkedInScraper():
+
     # Setup chrome driver
-    service = MyWeb.Service(executable_path=f'./chromedriver')
+    service = MyWeb.Service(executable_path=f'./Python Files/chromedriver')
 
     chrome_options = MyWeb.webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
+    # chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--disable-gpu')
     driver = MyWeb.webdriver.Chrome(service=service, options=chrome_options)
 
-    while True:
-        try:
-            pass
-        except StopIteration:
-            print('End of list')
-            driver.quit()
-            break
-        except Exception as e:
-            print(f'Exception Occurred: {e}')
+    # Login to account
+    handleLogin(driver)
+
+    # Acquire list of job postings 
+    list_of_job_pages = acquireJobListings(driver)
+
+    # Save HTML 
+    file_count = len([name for name in os.listdir(basePath)])
+    job_counter = file_count + 1
+    for page in list_of_job_pages:
+        
+        # Base Case - Job already found
+        if(page.split('?position')[0] in url_set):
+            print('<JOB ALREADY ADDED>')
             continue
-            
+
+        # Get HTML
+        driver.get(page)
+        print(page) #Uncomment to show URL in console
+
+        # Click on 'Show More' button
+        show_more_button_selector = 'button[aria-label="Click to see more description"]'
+        try:
+            MyWeb.WebDriverWait(driver, 15).until(
+                MyWeb.EC.presence_of_element_located((MyWeb.By.CSS_SELECTOR, show_more_button_selector))
+            )
+            button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
+
+            MyWeb.time.sleep(1)
+            button.click()
+            MyWeb.time.sleep(1)
+
+        except TimeoutException:
+            print('<SHOW MORE BUTTON NOT FOUND>')
+
+        # Save .html file
+        path = f'{basePath}/Job{job_counter}.html' 
+        with open(path, 'w') as f:
+            f.write(f'<!-- {page} -->\n') #Store page URL at top of file
+            f.write(driver.page_source)
+            job_counter += 1
+
 def handleLogin(driver):
-    # Open Login Page
+    
+    # Open login page
     login_URL = 'https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin'
     driver.get(login_URL)
 
-    # Enter Login Details
+    # Acquire login details from text file
     with open(f'/Users/{os.getlogin()}/Desktop/details.txt', 'r') as file:
         email = file.readline().strip()
         pwd = file.readline().strip()
 
+    # Enter details into LinkedIn
     MyWeb.interactWithTextBoxByID('username', 
                                   email, 
                                   driver, 
@@ -120,7 +161,6 @@ def acquireJobListings(driver):
     list_of_job_pages = []
     for page_url in list_of_page_urls:
 
-        # driver.get(page_url)
         pageText = MyWeb.getHTML(page_url)
         hyperlinks = pageText.find_all('a')
         for link in hyperlinks:
@@ -130,11 +170,12 @@ def acquireJobListings(driver):
             if _ is None:
                 continue
 
-            if re.search(regex_pattern, _) is not None: #todo
+            if re.search(regex_pattern, _) is not None: 
                 list_of_job_pages.append(_)
 
     return list_of_job_pages
 
+# Data Extraction Functions
 def extractData():
     
     dir = './Python Files/Output Files/Job Pages'
@@ -152,8 +193,11 @@ def extractData():
             with open(file_path, 'r') as file:
                 
                 # Get HTML
-                pageText = file.read()
+                pageText = jobURL = file.read()
                 pageText = MyWeb.BeautifulSoup(pageText, 'html')
+
+                # Clean URL
+                jobURL = jobURL.splitlines()[0].split('<!-- ')[1].split(' -->')[0]
 
                 # Acquire location, post date, no.applicants
                 data_1 = pageText.find('div', 
@@ -238,60 +282,14 @@ def extractData():
                           salary,
                            employeeCount, 
                             data_5_text,
-                             jobID))
-
-def linkedInScraper():
-
-    # Setup chrome driver
-    service = MyWeb.Service(executable_path=f'./Python Files/chromedriver')
-
-    chrome_options = MyWeb.webdriver.ChromeOptions()
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument('--disable-gpu')
-    driver = MyWeb.webdriver.Chrome(service=service, options=chrome_options)
-
-    # Login to account
-    handleLogin(driver)
-
-    # Acquire list of job postings 
-    list_of_job_pages = acquireJobListings(driver)
-
-    # Save HTML 
-    basePath = './Python Files/Output Files/Job Pages'
-    file_count = len([name for name in os.listdir(basePath)])
-    job_counter = file_count + 1
-    for page in list_of_job_pages:
-        driver.get(page)
-        print(page)
-
-        show_more_button_selector = 'button[aria-label="Click to see more description"]'
-        
-        try:
-            MyWeb.WebDriverWait(driver, 15).until(
-                MyWeb.EC.presence_of_element_located((MyWeb.By.CSS_SELECTOR, show_more_button_selector))
-            )
-            button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
-        except TimeoutError:
-            try:
-                button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
-            except Exception as e:
-                print('About Job Not Found' + e)
-                continue
-
-        MyWeb.time.sleep(1)
-        button.click()
-        MyWeb.time.sleep(1)
-
-        path = f'{basePath}/Job{job_counter}.html' 
-        with open(path, 'w') as f:
-            f.write(f'<!-- {page} -->') #Store page URL at top of file
-            f.write(driver.page_source)
-            job_counter += 1
+                             jobID, 
+                                jobURL))
     
+# Data Export Functions
 def exportData():
 
     # General 
-    general_df = pd.DataFrame(columns= ['Job ID', 'Company Name', 'Location', 'Post Date', 'No. Applicants', 'No. Employees', 'Salary', 'Original Salary'])
+    general_df = pd.DataFrame(columns= ['Job ID', 'Company Name', 'Location', 'Post Date', 'No. Applicants', 'No. Employees', 'Salary', 'Original Salary', 'URL'])
 
     # Work Type
     workType_df = pd.DataFrame(columns= ['Job ID', 'On-Site', 'Remote', 'Hybrid', 'Unspecified'])
@@ -319,8 +317,7 @@ def exportData():
     contractType_df.to_csv('./Python Files/Output Files/csv/Contract Type.csv', index= False)
     jobLevel_df.to_csv('./Python Files/Output Files/csv/Job Level.csv', index= False)
     skills_df.to_csv('./Python Files/Output Files/csv/Skills.csv', index= False)
-
-
+    
 # Main Loop
 if __name__ == '__main__':
     main()

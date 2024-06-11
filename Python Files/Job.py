@@ -6,6 +6,14 @@ class Job:
 
     Each of the functions in this class have been created to facilitate the creation of DataFrame objects, which allows information to be exported and analysed in Tableau.
     '''
+    states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+                "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+                "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+                "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+                "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", 
+                "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", 
+                "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", 
+                "Wisconsin", "Wyoming"]
 
     state_abbreviations = {
         'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
@@ -25,11 +33,12 @@ class Job:
                  hybrid, location_unspecified, contract, full_time, contract_unspecified, 
                  entry_level, mid_senior_level, director_level, associate_level, internship_level, job_level_unspecified, 
                  sql, excel, tableau, power_bi, python, r,
-                 salary, employee_count, company_name, jobId):
+                 salary, employee_count, company_name, jobId, jobURL):
 
         # General
         self.jobId = jobId
         self.company_name = company_name
+        self.url = jobURL
         
         # Applicants
         self.no_applicants = no_applicants
@@ -46,12 +55,27 @@ class Job:
 
         if ',' not in location:
             self.location = location
+
+            if location not in Job.states and len(location) != 2: #If not state code and text is not state
+                for state in Job.states:
+                    if state in self.location:
+                        self.location = state
+                        break
+
         else:
             _ = location.split(',')[1].strip()
             if len(_) == 2:
                 self.location = Job.state_abbreviations[_]
-            else:
-                self.location = _
+            else: # Not a state code
+                stateSet = False
+                for state in Job.states:
+                    if state in _:
+                        self.location = state
+                        stateSet = True
+                        break
+
+                if not stateSet:
+                    self.location = _
 
         #Post Date
         self.post_date = post_date.replace('Reposted', '')
@@ -64,13 +88,15 @@ class Job:
         elif 'weeks' in self.post_date:
             pass 
 
-        # Place into number
-
         # Handle Salary
-        self.salary = salary 
+        self.salary = salary
+        self.original_salary = salary
+
         if salary is not None:
             if 'up to' in salary.lower(): # Remove text
                 self.salary = salary.lower().split('up to ')[1]
+            elif 'starting at' in salary.lower():
+                self.salary = salary.lower().split('starting at ')[1]
             elif ' - ' in salary: #Take lower end of salary range
                 self.salary = salary.split(' - ')[0]
                 
@@ -82,9 +108,13 @@ class Job:
             if '/' in self.salary:
                 self.salary = self.salary.split('/')[0]
             
-            self.salary = float(self.salary[1:])
+            try:
+                self.salary = float(self.salary[1:])
+            except ValueError: 
+                print(f'Salary Error: {self.salary}')
+                self.salary = None
+                self.original_salary = None
 
-        self.original_salary = salary
 
         # Working Type
         self.on_site = on_site 
@@ -126,7 +156,4 @@ class Job:
         return [self.jobId, self.on_site, self.remote, self.hybrid, self.location_unspecified]
 
     def getGeneral(self):
-        return [self.jobId, self.company_name, self.location, self.post_date,  self.no_applicants, self.employee_count, self.salary, self.original_salary]
-
-    def __str__(self) -> str:
-        return [self.jobId, self.location, self.post_date, self.no_applicants, self.on_site, self.remote, self.hybrid, self.location_unspecified, self.contract, self.full_time, self.contract_unspecified, self.entry_level, self.mid_senior_level, self.director_level, self.associate_level, self.internship_level, self.job_level_unspecified, self.sql, self.excel, self.tableau, self.power_bi, self.python, self.r, self.salary, self.employee_count, self.company_name]
+        return [self.jobId, self.company_name, self.location, self.post_date,  self.no_applicants, self.employee_count, self.salary, self.original_salary, self.url]

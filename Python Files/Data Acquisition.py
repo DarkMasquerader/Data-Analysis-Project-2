@@ -1,13 +1,17 @@
-import MyWeb, os, re
+import MyWeb, os, re, datetime
 from Job import Job
 import pandas as pd
 
 list_of_job_objects = []
 
-collectNewData = False
+collectNewData = True
+no_pages = 20
 
 specificCountry = True
-country = 'United Kingdom'
+country = 'United States'
+
+
+collectionDate = datetime.datetime(2024, 6, 11)
 
 def main():
     
@@ -107,7 +111,7 @@ def acquireJobListings(driver):
 
     app_str = '&start='
     app_num = 25 
-    for x in range(1, 10):
+    for x in range(1, no_pages):
         list_of_page_urls.append(f'{pageURL}{app_str}{app_num * x}')
 
     # Extract all job URL's
@@ -258,25 +262,36 @@ def linkedInScraper():
     job_counter = file_count + 1
     for page in list_of_job_pages:
         driver.get(page)
+        print(page)
 
         show_more_button_selector = 'button[aria-label="Click to see more description"]'
-        MyWeb.WebDriverWait(driver, 15).until(
-            MyWeb.EC.presence_of_element_located((MyWeb.By.CSS_SELECTOR, show_more_button_selector))
-        )
-        button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
+        
+        try:
+            MyWeb.WebDriverWait(driver, 15).until(
+                MyWeb.EC.presence_of_element_located((MyWeb.By.CSS_SELECTOR, show_more_button_selector))
+            )
+            button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
+        except TimeoutError:
+            try:
+                button = driver.find_element(MyWeb.By.CSS_SELECTOR, show_more_button_selector)
+            except Exception as e:
+                print('About Job Not Found' + e)
+                continue
+
         MyWeb.time.sleep(1)
         button.click()
         MyWeb.time.sleep(1)
 
         path = f'{basePath}/Job{job_counter}.html' 
         with open(path, 'w') as f:
+            f.write(f'<!-- {page} -->') #Store page URL at top of file
             f.write(driver.page_source)
             job_counter += 1
     
 def exportData():
 
     # General 
-    general_df = pd.DataFrame(columns= ['Job ID', 'Company Name', 'Location', 'Post Date', 'No. Applicants', 'No. Employees', 'Salary'])
+    general_df = pd.DataFrame(columns= ['Job ID', 'Company Name', 'Location', 'Post Date', 'No. Applicants', 'No. Employees', 'Salary', 'Original Salary'])
 
     # Work Type
     workType_df = pd.DataFrame(columns= ['Job ID', 'On-Site', 'Remote', 'Hybrid', 'Unspecified'])

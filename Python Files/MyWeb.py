@@ -1,5 +1,5 @@
 # Web scraping libraries
-from bs4 import BeautifulSoup #find = isolate component | get = get value
+from bs4 import BeautifulSoup
 import requests
 
 # Web interaction/botting libraries 
@@ -16,7 +16,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from threading import Thread, Lock
 mutex = Lock()
 threadLimit = 15 
-isThreading = True # Set to false to run on single thread
+isThreading = False # False = Single Thread | True = Multi-Threaded
 
 # General libraries
 import time
@@ -117,7 +117,7 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: b
         
         Raises
         ------
-        
+        This function does not raise an exception.
     '''
 
     # Safely confirm presence of textbox before attempting interaction
@@ -137,10 +137,6 @@ def interactWithTextBoxByID(id: str, text: str, driver: webdriver, pressEnter: b
         
     pageHTML = driver.page_source
     pageURL = driver.current_url
-
-    # Update driver
-    # if pressEnter:
-    #     driver.get(pageURL)
 
     return pageHTML, pageURL
 
@@ -174,7 +170,7 @@ def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver, pr
         
         Raises
         ------
-        
+        This function does not raise an exception.
     '''
 
     # Safely confirm presence of textbox before attempting interaction
@@ -194,10 +190,6 @@ def interactWithTextBoxByClass(html_class: str, text: str, driver: webdriver, pr
 
     pageHTML = driver.page_source
     pageURL = driver.current_url
-
-    # Update driver
-    # if pressEnter:
-    #     driver.get(pageURL)
 
     return pageHTML, pageURL
 
@@ -231,7 +223,7 @@ def interactWithTextBoxBySelector(selector: str, text: str, driver: webdriver, p
         
         Raises
         ------
-        
+        This function does not raise an exception.
     '''
 
     # Safely confirm presence of textbox before attempting interaction
@@ -270,12 +262,12 @@ def isolateHTMLElementByClass(driver: webdriver, element_name: str):
     
         Returns
         -------
+        This function returns the located element and its contents, respectively.
         
         Raises
         ------
         NoSuchElementException
             This exception is raised if the element cannot be found.
-        
     '''
 
     try:
@@ -286,6 +278,7 @@ def isolateHTMLElementByClass(driver: webdriver, element_name: str):
 
         dirtyElement = driver.find_element(By.CLASS_NAME, element_name)
         cleanElement = dirtyElement.text.strip()
+        return dirtyElement, cleanElement
         
     except NoSuchElementException as e:
         print(f'No such element found: {e}')
@@ -316,13 +309,13 @@ def isolateInteractableHTML(page: BeautifulSoup, name: str, findAll: bool, index
             This contains a dictionary of attributes and values that's used in the isolation of interactable HTML elements.
     
         Returns
-        
         -------
         _list
             A single or list of interactable HTML objects
     
         Raises
         ------
+        This function does not raise an exception.
         
     '''
 
@@ -347,5 +340,4 @@ def isolateInteractableHTML(page: BeautifulSoup, name: str, findAll: bool, index
             return page.find(name=name, attrs=attr)
         else:
             return page.find(name=name)
-
 

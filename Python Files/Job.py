@@ -30,6 +30,19 @@ class Job:
         # General
         self.jobId = jobId
         self.company_name = company_name
+        
+        # Applicants
+        self.no_applicants = no_applicants
+        if 'over' in self.no_applicants.lower(): #Over 100 applicants
+            _ = self.no_applicants.split(' ')[1]
+            self.no_applicants = _ + '+'
+        elif 'early' in self.no_applicants.lower(): #Be an early applicant
+            self.no_applicants = 'Early'
+        
+        if 'applicants' in self.no_applicants.lower():
+            self.no_applicant = self.no_applicants.lower().split('applicants')[0]
+
+        self.employee_count = employee_count
 
         if ',' not in location:
             self.location = location
@@ -40,13 +53,21 @@ class Job:
             else:
                 self.location = _
 
-        self.post_date = post_date
-        self.no_applicants = no_applicants 
-        self.employee_count = employee_count
+        #Post Date
+        self.post_date = post_date.replace('Reposted', '')
 
+        # Convert everything to days
+        if 'month' in self.post_date:
+            pass
+        elif 'hour' in self.post_date:
+            pass #0 days ago, current date
+        elif 'weeks' in self.post_date:
+            pass 
 
+        # Place into number
+
+        # Handle Salary
         self.salary = salary 
-
         if salary is not None:
             if 'up to' in salary.lower(): # Remove text
                 self.salary = salary.lower().split('up to ')[1]
@@ -62,6 +83,8 @@ class Job:
                 self.salary = self.salary.split('/')[0]
             
             self.salary = float(self.salary[1:])
+
+        self.original_salary = salary
 
         # Working Type
         self.on_site = on_site 
@@ -103,7 +126,7 @@ class Job:
         return [self.jobId, self.on_site, self.remote, self.hybrid, self.location_unspecified]
 
     def getGeneral(self):
-        return [self.jobId, self.company_name, self.location, self.post_date,  self.no_applicants, self.employee_count, self.salary]
+        return [self.jobId, self.company_name, self.location, self.post_date,  self.no_applicants, self.employee_count, self.salary, self.original_salary]
 
     def __str__(self) -> str:
         return [self.jobId, self.location, self.post_date, self.no_applicants, self.on_site, self.remote, self.hybrid, self.location_unspecified, self.contract, self.full_time, self.contract_unspecified, self.entry_level, self.mid_senior_level, self.director_level, self.associate_level, self.internship_level, self.job_level_unspecified, self.sql, self.excel, self.tableau, self.power_bi, self.python, self.r, self.salary, self.employee_count, self.company_name]

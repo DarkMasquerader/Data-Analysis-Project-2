@@ -31,7 +31,7 @@ The dataset used for this project is generated using data collected first-hand f
 
 The collected data is cleaned, transformed, and handled in preparation for subsequent data analysis in Tableau.
 
-The script responsible for data acquisition and preparation is `Data Acquisition.py`, which can be viewed [here](Python%20Files/Data%20Acquisition/).
+The script responsible for data acquisition and preparation is `Data Acquisition.py`, which can be viewed [here](Python%20Files/Data%20Acquisition.py).
 
 ## Results at a Glance
 Due to the nature of this project collecting data first-hand, there is a `lack' of historical data, which does not leave much room for trend analysis.

@@ -9,7 +9,7 @@ list_of_job_objects = []
 url_set = set()
 
 collectNewData = True #Set to false if extracting data from local .html files
-no_pages = 20 # No. LinkedIn pages to scrape
+no_pages = 100 # No. LinkedIn pages to scrape
 
 specificCountry = False #Set to true to specify the country of the job search
 country = 'United States'
@@ -82,7 +82,7 @@ def linkedInScraper():
 
         # Get HTML
         driver.get(page)
-        print(page) #Uncomment to show URL in console
+        # print(page) #Uncomment to show URL in console
 
         # Click on 'Show More' button
         show_more_button_selector = 'button[aria-label="Click to see more description"]'
@@ -256,8 +256,8 @@ def extractData():
 
                 skillSQL = 'sql' in data_3_text
                 skillsExcel = 'excel' in data_3_text
-                skillsTableau = 'tableau' in data_3_text
-                skillsPowerBi = 'power bi' in data_3_text
+                skillsTableau = 'tableau' in data_3_text or 'visualisation tool' in data_3_text
+                skillsPowerBi = 'power bi' in data_3_text or 'visualisation tool' in data_3_text
                 skillsPython = 'python' in data_3_text
                 skillsR = ' r ' in data_3_text
 

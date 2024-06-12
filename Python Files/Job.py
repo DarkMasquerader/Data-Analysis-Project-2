@@ -136,6 +136,11 @@ class Job:
         self.python = python 
         self.r = r
 
+    '''
+    The functions below are used to fill DataFrame objects; one object for each table generated.
+
+    These functions are called inside exportData() in Data Acquisition.py. 
+    '''
     def getSkills(self):
         return [self.jobId, self.sql, self.excel, self.tableau, self.power_bi, self.python, self.r]
 

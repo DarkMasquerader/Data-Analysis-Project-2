@@ -1,18 +1,18 @@
 # An Analysis of Data Analyst Jobs in the US
 
 ## Table of Contents 
-- [Project Focus](#project-focus)
-- [Tech Stack](#tech-stack)
 - [Business Problem](#business-problem)
+- [Tech Stack](#tech-stack)
+- [Project Focus](#project-focus)
 - [Data Preparation and Acquisition](#data-preparation-and-acquisition)
 - [Results at a Glance](#results-at-a-glance)
 - [Insights & Recommendations](#insights-and-recommendations)
 - [Limitations and Potential Improvements](#limitations-and-potential-improvements)
 
-## Project Focus 
-This project covers all stages of the data analysis process, with the strong points of this project being the *data collection* and *data processing* stages.
+## Business Problem 
+This project is of personal interest and use to me, as I am looking for data analyst positions in the US. 
 
-In-depth details on these stages can be found in the [Python](Python%20Files/) directory.
+The goal of this project is to provide the end user (yours truly) with a high-level insight into the state of data analyst jobs in the USA.
 
 ## Tech Stack 
 - [Python](Python%20Files/)
@@ -21,10 +21,10 @@ In-depth details on these stages can be found in the [Python](Python%20Files/) d
     - Data Visualisation: Numpy, Matplotlib
 - [Tableau](Tableau/)
 
-## Business Problem 
-This project is of personal interest and use to me, as I am looking for data analyst positions in the US. 
+## Project Focus 
+This project covers all stages of the data analysis process, with the strong points of this project being the *data collection* and *data processing* stages.
 
-The goal of this project is to provide the end user (yours truly) with a high-level insight into the state of data analyst jobs in the USA.
+In-depth details on these stages can be found in the [Python](Python%20Files/) directory.
 
 ## Data Preparation and Acquisition
 The dataset used for this project is generated using data collected first-hand from [LinkedIn](https://linkedin.com).

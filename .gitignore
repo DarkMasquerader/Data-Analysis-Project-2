@@ -1,5 +1,5 @@
 .DS_Store
 /__pycache__
-/Python Files/Output Files/Job Pages
+# /Python Files/Output Files/
 *.pyc
 /Python Files/Input Files

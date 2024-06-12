@@ -1,13 +1,18 @@
 # An Analysis of Data Analyst Jobs in the US
 
 ## Table of Contents 
-- [Tech Stack](#tech-stack)
 - [Project Focus](#project-focus)
+- [Tech Stack](#tech-stack)
 - [Business Problem](#business-problem)
 - [Data Preparation and Acquisition](#data-preparation-and-acquisition)
 - [Results at a Glance](#results-at-a-glance)
 - [Insights & Recommendations](#insights-and-recommendations)
 - [Limitations and Potential Improvements](#limitations-and-potential-improvements)
+
+## Project Focus 
+This project covers all stages of the data analysis process, with the strong points of this project being the *data collection* and *data processing* stages.
+
+In-depth details on these stages can be found in the [Python](Python%20Files/) directory.
 
 ## Tech Stack 
 - [Python](Python%20Files/)
@@ -15,11 +20,6 @@
     - Data Processing: Data Cleaning and Transformation
     - Data Visualisation: Numpy, Matplotlib
 - [Tableau](Tableau/)
-
-## Project Focus 
-This project covers all stages of the data analysis process, with the strong points of this project being the *data collection* and *data processing* stages.
-
-In-depth details on these stages can be found in the [Python](Python%20Files/) directory.
 
 ## Business Problem 
 This project is of personal interest and use to me, as I am looking for data analyst positions in the US. 

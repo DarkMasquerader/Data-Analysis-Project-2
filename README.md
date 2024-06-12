@@ -45,26 +45,30 @@ Across the 1,169 collected job postings, a significant majority of listings expl
 This heatmap of the USA shows the majority of data analysis positions are located in the state of New York (317 entries), with the state of California in second place with 51 entries.
 
 ## Explore the Dashboard (Tableau) 
-A dashboard has been put together in Tableau to summarise the findings of this research project.
-For further details and to view the dashboard, go to the [Tableau](Tableau/) directory.
+A dashboard has been put together in Tableau to summarise the findings of this research project.\
+For further details and to view the dashboard, go to the [Tableau](Tableau%20Files/) directory.
 
 ## Challenges and Limitations
 
 ### Data Availability 
-The biggest challenge faced regarding data availability is the abundance of qualitative data.\
+The biggest challenge faced regarding data availability is the overwhelming prevalence of qualitative data.
+
 The majority of information about a job posting is contained in its description, the structure of which is **not** standardised.
-With each company using its own structure and wording to provide information regarding the job posting, accurate automation of the harvesting this data is very difficult.
+
+With each company using its own structure and wording to provide information about the job posting, it is a difficult task to automate the accurate harvesting of this data.
 
 ### Historical Data
 The lack of available historical data (i.e. previous job postings) places a limitation on the type of analysis that can be conducted.\
-For example, historical data would enable the analysis of the change in average salary over time.
+
+One use case of such historical data could be to enable the analysis of the change in average salary over time.
 
 ### Data Collection Challenges
 Data collection was surprisingly challenging, due to the dynamic nature of LinkedIn.\
-This greatly increased the development time of the the data acquisition script.
+This greatly increased the development time of the data acquisition phase of this project.
 
 #### Challenge #1
-One consequence of LinkedIn's dynamism results in data that is either visible to a human user or known to be present on the page, not being present in the HTML file (what the scraper looks at).\
+One consequence of LinkedIn's dynamism results in data that is either visible to a human user or known to be present on the page, not being present in the HTML file (what the scraper looks at).
+
 Let's take a look at the following image:
 ![alt](Images/Dynamism%201.png)\
 In this image, we can see 'About the job' and the start of the job description.
@@ -73,7 +77,7 @@ However, in the page's current state, only the 'About the job' can be extracted 
 In order for the contents of the job description to be made present in the HTML, the 'See more' button must be interacted with first, adding an extra layer of complexity to the data collection process.
 
 #### Challenge #2
-The second challenge, which provided to be a larger hurdle to overcome at the start of the project, is the usage of 'dynamic IDs'.
+The second challenge, which proved to be a larger hurdle to overcome at the start of the project, is the usage of 'dynamic IDs'.
 
 Depending on the URL used to access LinkedIn, the IDs of the HTML tags (for example, the ID attribute of the search bar) would be dynamic and **not** consistent with each run.
 

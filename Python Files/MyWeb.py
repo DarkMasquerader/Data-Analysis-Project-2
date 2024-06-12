@@ -1,3 +1,6 @@
+'''
+This Python file is my personal data scraping assistant.
+'''
 # Web scraping libraries
 from bs4 import BeautifulSoup
 import requests
@@ -67,6 +70,40 @@ def threadCaller(threadCallee: Callable):
         Raises
         ------
         This function raises any exception thrown inside the passed function.
+
+        Notes
+        -----
+        When using this function, be sure to implement the following code:
+        ###
+        threadCounter = 0
+        def getNextThing():
+            with MyWeb.mutex:
+                global threadCounter
+                threadCounter += 1
+                # return next(<ITERABLE>)
+
+        def threadCallee(num):
+            print(f'Thread #{num} started')
+            
+            # Setup chrome driver
+            service = MyWeb.Service(executable_path=f'./chromedriver')
+
+            chrome_options = MyWeb.webdriver.ChromeOptions()
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-gpu')
+            driver = MyWeb.webdriver.Chrome(service=service, options=chrome_options)
+
+            while True:
+                try:
+                    pass
+                except StopIteration:
+                    print('End of list')
+                    driver.quit()
+                    break
+                except Exception as e:
+                    print(f'Exception Occurred: {e}')
+                    continue
+        ###
     '''
 
     # Recording running time
@@ -262,7 +299,11 @@ def isolateHTMLElementByClass(driver: webdriver, element_name: str):
     
         Returns
         -------
-        This function returns the located element and its contents, respectively.
+        dirtyElement: Element
+            The Element object of the searched element.
+        
+        cleanElement: str
+            The contents of the searched element.
         
         Raises
         ------

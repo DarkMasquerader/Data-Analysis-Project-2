@@ -8,7 +8,7 @@ from selenium.common.exceptions import TimeoutException
 list_of_job_objects = [] 
 url_set = set()
 
-collectNewData = True #Set to false if extracting data from local .html files
+collectNewData = False #Set to false if extracting data from local .html files
 no_pages = 100 # No. LinkedIn pages to scrape
 
 specificCountry = False #Set to true to specify the country of the job search
@@ -184,6 +184,7 @@ def extractData():
     
     dir = './Python Files/Output Files/Job Pages'
     jobID = 0
+    local_list_of_url = set()
     for file_name in os.listdir(dir):
 
         # Base Case - Not .html file
@@ -201,7 +202,14 @@ def extractData():
                 pageText = MyWeb.BeautifulSoup(pageText, 'html')
 
                 # Clean URL
-                jobURL = jobURL.splitlines()[0].split('<!-- ')[1].split(' -->')[0]
+                jobURL = jobURL.splitlines()[0].split('<!-- ')[1].split(' -->')[0].split('?position')[0]
+
+                # Repeat handling
+                if jobURL in local_list_of_url:
+                    print('<PAGE ALREADY ADDED>')
+                    continue
+                else:
+                    local_list_of_url.add(jobURL)
 
                 # Acquire location, post date, no.applicants
                 data_1 = pageText.find('div', 

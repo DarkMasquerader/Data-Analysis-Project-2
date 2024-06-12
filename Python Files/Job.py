@@ -4,8 +4,10 @@ class Job:
 
     All information stored in each instance (object) is provided at initialisation.
 
-    Each of the functions in this class have been created to facilitate the creation of DataFrame objects, which allows information to be exported and analysed in Tableau.
+    Each of the functions in this class facilitate the creation of DataFrame objects, enabling information to be exported (.csv) and analysed in Tableau.
     '''
+
+    # Class attributes
     states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
                 "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
                 "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
@@ -39,6 +41,7 @@ class Job:
         self.jobId = jobId
         self.company_name = company_name
         self.url = jobURL
+        self.employee_count = employee_count
         
         # Applicants
         self.no_applicants = no_applicants
@@ -50,8 +53,6 @@ class Job:
         
         if 'applicants' in self.no_applicants.lower():
             self.no_applicant = self.no_applicants.lower().split('applicants')[0]
-
-        self.employee_count = employee_count
 
         if ',' not in location:
             self.location = location
@@ -80,17 +81,9 @@ class Job:
         #Post Date
         self.post_date = post_date.replace('Reposted', '')
 
-        # Convert everything to days
-        if 'month' in self.post_date:
-            pass
-        elif 'hour' in self.post_date:
-            pass #0 days ago, current date
-        elif 'weeks' in self.post_date:
-            pass 
-
         # Handle Salary
-        self.salary = salary
-        self.original_salary = salary
+        self.salary = salary #Float - This value is used for 'ordering' in Tableau
+        self.original_salary = salary #String - This value is used for presentation to the end user
 
         if salary is not None:
             if 'up to' in salary.lower(): # Remove text

@@ -8,24 +8,27 @@ from selenium.common.exceptions import TimeoutException
 list_of_job_objects = [] 
 url_set = set()
 
-collectNewData = False #Set to false if extracting data from local .html files
-no_pages = 20 # When collecting new data, this var determines the number of pages to search through
+collectNewData = True #Set to false if extracting data from local .html files
+no_pages = 20 # No. LinkedIn pages to scrape
 
-specificCountry = True #Set to true to specify the country of the job search
+specificCountry = False #Set to true to specify the country of the job search
 country = 'United States'
 
-basePath = './Python Files/Output Files/Job Pages' #Output path for .html files
+basePath = './Python Files/Output Files/Job Pages' # Output path for .html files
 
 collectionDate = datetime.datetime.today()
 
 def main():
     
     ''' 
-    This function is responsible for scraping job-related information from LinkedIn.
+    These functions are responsible for scraping job-related information from LinkedIn.
     The .html file for each job listing is saved locally with its URL prepended within the document.
+
+    getPreviousJobURLS() creates a set of job URL's from previous data collections.
+    The set is used to prevent subsequent scraping attempts including previously recorded jobs.
     '''
     if collectNewData:
-        getPreviousJobURLS()
+        getPreviousJobURLS() # Enables subsequent searches preventing repeated jobs in dataset
         linkedInScraper()
     
     '''
@@ -38,6 +41,7 @@ def main():
     '''
     exportData()
     
+    # Termination notification
     print('******* DONE *******')
 
 # Data Scraping functions
@@ -209,7 +213,7 @@ def extractData():
                 if len(data_1_split) == 2:
                     data_1_split.append('N/A')
 
-                # Acquire salary, remote/hybrid/in-person, contract type, level
+                # Acquire salary, remote/hybrid/in-person, contract type, job level
                 LIST_ELEMENTS = pageText.findAll('li', 
                                     {'class' : 'job-details-jobs-unified-top-card__job-insight'})
  
@@ -251,11 +255,11 @@ def extractData():
                 data_3_text = data_3.get_text(separator='\n', strip=True).lower() # About This Job
 
                 skillSQL = 'sql' in data_3_text
-                skillsExcel = 'excel'in data_3_text
-                skillsTableau = 'tableau'in data_3_text
-                skillsPowerBi = 'power bi'in data_3_text
-                skillsPython = 'python'in data_3_text
-                skillsR = ' r 'in data_3_text
+                skillsExcel = 'excel' in data_3_text
+                skillsTableau = 'tableau' in data_3_text
+                skillsPowerBi = 'power bi' in data_3_text
+                skillsPython = 'python' in data_3_text
+                skillsR = ' r ' in data_3_text
 
                 # No. Employees
                 data_4 = LIST_ELEMENTS[1]

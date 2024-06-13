@@ -44,6 +44,8 @@ Across the 1,169 collected job postings, a significant majority of listings expl
 ![alt](Images/Jobs%20per%20State.png)\
 This heatmap of the USA shows the majority of data analysis positions are located in the state of New York (317 entries), with the state of California in second place with 51 entries.
 
+[NOTE: The numbers have changed since the writing of this README, though the findings remain the same.]
+
 ## Explore the Dashboard (Tableau) 
 A dashboard has been put together in Tableau to summarise the findings of this research project.\
 For further details and to view the dashboard, go to the [Tableau](Tableau%20Files/) directory.

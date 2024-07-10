@@ -60,7 +60,7 @@ The majority of information about a job posting is contained in its description,
 With each company using its own structure and wording to provide information about the job posting, it is a difficult task to automate the accurate harvesting of this data.
 
 ### Historical Data
-The lack of available historical data (i.e. previous job postings) places a limitation on the type of analysis that can be conducted.\
+The lack of available historical data (i.e. previous job postings) places a limitation on the type of analysis that can be conducted.
 
 One use case of such historical data could be to enable the analysis of the change in average salary over time.
 
